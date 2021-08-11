@@ -198,7 +198,8 @@ class ServiceNowAdapter extends EventEmitter {
         const records = this.connector.get(callback);
 
         if(records && records.body){
-            const newRecordsArray = JSON.parse(records.body);
+            const parsedResult = JSON.parse(records.body);
+            const newRecordsArray = parsedResult.result;
 
             for(let i=0; i < newRecordsArray.length; i++) {
                 const newRecord = newRecordsArray[i];
@@ -238,7 +239,8 @@ class ServiceNowAdapter extends EventEmitter {
         const record = this.connector.post(callback);
         
         if(record && record.body){
-            const newRecord = JSON.parse(records.body);
+            const parsedRecord = JSON.parse(records.body);
+            const newRecord = parsedRecord.result;
                 
             return ({
                 "change_ticket_number": newRecord.number,
