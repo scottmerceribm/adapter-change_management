@@ -195,28 +195,7 @@ class ServiceNowAdapter extends EventEmitter {
          * Note how the object was instantiated in the constructor().
          * get() takes a callback function.
          */
-        const records = this.connector.get(callback);
-
-        if(records && records.body){
-            const newRecordsArray = JSON.parse(records.body);
-
-            for(let i=0; i < newRecordsArray.length; i++) {
-                const newRecord = newRecordsArray[i];
-                
-                const reformattedObject = {
-                    "change_ticket_number": newRecord.number,
-                    "active": newRecord.active,
-                    "priority": newRecord.priority,
-                    "description": newRecord.description,
-                    "work_start": newRecord.work_start,
-                    "work_end": newRecord.work_end,
-                    "change_ticket_key": newRecord.sys_id
-                };
-
-                newRecordsArray[i] = reformattedObject;
-            };
-            return newRecordsArray;
-        }
+        this.connector.get(callback);
     }
 
     /**
@@ -235,21 +214,7 @@ class ServiceNowAdapter extends EventEmitter {
          * Note how the object was instantiated in the constructor().
          * post() takes a callback function.
          */
-        const record = this.connector.post(callback);
-        
-        if(record && record.body){
-            const newRecord = JSON.parse(records.body);
-                
-            return ({
-                "change_ticket_number": newRecord.number,
-                "active": newRecord.active,
-                "priority": newRecord.priority,
-                "description": newRecord.description,
-                "work_start": newRecord.work_start,
-                "work_end": newRecord.work_end,
-                "change_ticket_key": newRecord.sys_id
-            });
-        }
+        this.connector.post(callback);
     }
 }
 
