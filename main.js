@@ -132,7 +132,6 @@ class ServiceNowAdapter extends EventEmitter {
                  * parameter as an argument for the callback function's
                  * responseData parameter.
                  */
-                console.log("Result From HealthCheck", result);
                 this.emitOnline();
                 log.debug('Health Check Pass, processing callback if supplied');
                 if (callback) {
