@@ -132,7 +132,7 @@ class ServiceNowAdapter extends EventEmitter {
                  * parameter as an argument for the callback function's
                  * responseData parameter.
                  */
-
+                console.log("Result From HealthCheck", result);
                 this.emitOnline();
                 log.debug('Health Check Pass, processing callback if supplied');
                 if (callback) {
@@ -195,29 +195,36 @@ class ServiceNowAdapter extends EventEmitter {
          * Note how the object was instantiated in the constructor().
          * get() takes a callback function.
          */
-        const records = this.connector.get(callback);
+        this.connector.get((records, error) => {
+            if (error) {
+                callback(records, error)
+            } else {
+                if (records.body) {
+                    const parsedResult = JSON.parse(records.body);
+                    const newRecordsArray = parsedResult.result;
 
-        if(records && records.body){
-            const parsedResult = JSON.parse(records.body);
-            const newRecordsArray = parsedResult.result;
+                    for (let i = 0; i < newRecordsArray.length; i++) {
+                        const newRecord = newRecordsArray[i];
 
-            for(let i=0; i < newRecordsArray.length; i++) {
-                const newRecord = newRecordsArray[i];
-                
-                const reformattedObject = {
-                    "change_ticket_number": newRecord.number,
-                    "active": newRecord.active,
-                    "priority": newRecord.priority,
-                    "description": newRecord.description,
-                    "work_start": newRecord.work_start,
-                    "work_end": newRecord.work_end,
-                    "change_ticket_key": newRecord.sys_id
-                };
+                        const reformattedObject = {
+                            "change_ticket_number": newRecord.number,
+                            "active": newRecord.active,
+                            "priority": newRecord.priority,
+                            "description": newRecord.description,
+                            "work_start": newRecord.work_start,
+                            "work_end": newRecord.work_end,
+                            "change_ticket_key": newRecord.sys_id
+                        };
 
-                newRecordsArray[i] = reformattedObject;
-            };
-            return newRecordsArray;
-        }
+                        newRecordsArray[i] = reformattedObject;
+                    };
+                    log.info("Get Record Success", newRecordsArray);
+                    callback(newRecordsArray, error);
+                } else {
+                    log.error("Get Record method, records returned without body", record);
+                }
+            }
+        });
     }
 
     /**
@@ -236,22 +243,30 @@ class ServiceNowAdapter extends EventEmitter {
          * Note how the object was instantiated in the constructor().
          * post() takes a callback function.
          */
-        const record = this.connector.post(callback);
-        
-        if(record && record.body){
-            const parsedRecord = JSON.parse(records.body);
-            const newRecord = parsedRecord.result;
-                
-            return ({
-                "change_ticket_number": newRecord.number,
-                "active": newRecord.active,
-                "priority": newRecord.priority,
-                "description": newRecord.description,
-                "work_start": newRecord.work_start,
-                "work_end": newRecord.work_end,
-                "change_ticket_key": newRecord.sys_id
-            });
-        }
+        this.connector.post((record, error) => {
+            if (error) {
+                callback(record, error);
+            } else {
+                if (record.body) {
+                    const parsedRecord = JSON.parse(records.body);
+                    const newRecord = parsedRecord.result;
+
+                    const reformattedRecord = {
+                        "change_ticket_number": newRecord.number,
+                        "active": newRecord.active,
+                        "priority": newRecord.priority,
+                        "description": newRecord.description,
+                        "work_start": newRecord.work_start,
+                        "work_end": newRecord.work_end,
+                        "change_ticket_key": newRecord.sys_id
+                    };
+                    log.info("Post Success", reformattedRecord);
+                    callback(reformattedRecord, error);
+                } else {
+                    log.error("Post Record, record returned without body", record)
+                }
+            }
+        });
     }
 }
 
