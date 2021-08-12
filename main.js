@@ -247,7 +247,7 @@ class ServiceNowAdapter extends EventEmitter {
                 callback(record, error);
             } else {
                 if (record.body) {
-                    const parsedRecord = JSON.parse(records.body);
+                    const parsedRecord = JSON.parse(record.body);
                     const newRecord = parsedRecord.result;
 
                     const reformattedRecord = {
